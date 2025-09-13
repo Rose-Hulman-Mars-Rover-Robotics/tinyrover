@@ -1,6 +1,5 @@
 import time
-from kv import grab_kv
-from kv import default_value
+from kv_api import grab_kv, default_value
 import requests
 
 allowed_flatline_time_ms = 4500

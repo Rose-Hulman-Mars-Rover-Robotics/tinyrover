@@ -4,7 +4,7 @@ import struct
 import port_grep
 import json
 from serial import *
-from kv import send_kv
+from kv_api import send_kv
 
 connected = False
 
@@ -23,12 +23,14 @@ min_x = calibration_data["minX"]
 max_y = calibration_data["maxY"]
 min_y = calibration_data["minY"]
 
+print("imu.py is running...")
 while True:
     try:
         if not connected:
             port = port_grep.find(6790)
             usb = Serial(port, 9600, timeout=1)
             connected = True
+            usb.write(bytes([0xff,0xaa,0x24,0x00,0x00])) # set 9-axis mode
         s = usb.read_until(b"U")
         if s[0] == 83:  # euler angles
             (rollr, pitchr, yawr) = struct.unpack("<hhh", s[1:7])
@@ -55,7 +57,6 @@ while True:
         if s[0] == 87:  # latitude and longitude
             (longu, longl, latu, latl) = struct.unpack("<hhhh", s[1:9])
             # send_kv('lat long', l)
-        print("imu.py is running...")
     except SerialException as se:
         print("imu disconnected, retrying")
         connected = False

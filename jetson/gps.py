@@ -3,7 +3,7 @@ import serial
 import sys
 import os
 import port_grep
-from kv import send_kv
+from kv_api import send_kv
 
 port = port_grep.find(1659)
 gps = serial.Serial(port, 4800, timeout=None)

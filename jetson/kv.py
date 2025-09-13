@@ -5,31 +5,14 @@ import requests
 import time
 from flask import send_from_directory
 from flask_cors import CORS, cross_origin
+from kv_api import default_value
 
 app = Flask(__name__)
 state = {}
 cors = CORS(app)
 app.config["CORS_HEADERS"] = "Content-Type"
-default_value = {"v": "no value"}
 
 # TODO: set local, server, and port to be variables here
-
-
-def send_kv(k, v, location="local"):
-    if location == "local":
-        r = requests.put("http://127.0.0.1:5001/data", json={"k": k, "v": v})
-    else:
-        r = requests.put("http://192.168.0.12:5001/data", json={"k": k, "v": v})
-
-
-def grab_kv(k):
-    r = requests.get("http://127.0.0.1:5001/data", json={"k": k})
-    return r.json()
-
-
-def grab_brown():
-    r = requests.get("http://127.0.0.1:5001/brown")
-    return r.json()
 
 
 @app.route("/data", methods=["GET", "POST", "PUT"])
