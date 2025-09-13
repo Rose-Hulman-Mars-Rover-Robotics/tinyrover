@@ -3,7 +3,7 @@ import atexit
 import platform
 
 
-class Messenger:
+class WheelMessenger:
     def __init__(self):
         self.ser = serial.Serial()
         self.ser.setDTR(False)
@@ -61,7 +61,7 @@ class Messenger:
 
 ###
 if __name__ == "__main__":
-    j2a = Messenger()
+    j2a = WheelMessenger()
     # while(1):
     # j2a.send([0, 90, 90])
     for i in range(200):

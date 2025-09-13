@@ -17,7 +17,7 @@ app.config["CORS_HEADERS"] = "Content-Type"
 
 
 try:
-    j2a = jetson2arduino.Messenger()
+    j2a = jetson2arduino.WheelMessenger()
     print("successful connect to arduino")
 except Exception as e:
     print("failed to connect to arduino:")

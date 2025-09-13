@@ -8,7 +8,7 @@ from kv import grab_kv, grab_brown
 
 tolerance = 2 / 111111
 try:
-	j2a = jetson2arduino.Messenger()
+	j2a = jetson2arduino.WheelMessenger()
 except:
 	pass
 
