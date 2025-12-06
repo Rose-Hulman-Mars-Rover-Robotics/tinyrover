@@ -1,18 +1,18 @@
 from enum import Enum
-import sys
 import pygame
-
 from pygame.locals import *
 import requests
+import sys
 
-pygame.init()
-pygame.joystick.init()
+
 controllers = None
 activeController = None
 
 # TODO: change values to adjust how controls feel after more field testing
 driveStrength = 30
+driveStrengthIncrement = 5
 turnStrength = 20
+turnStrengthIncrement = 3
 
 leftStickMotion = [0.0, 0.0]
 rightStickMotion = [0.0, 0.0]
@@ -42,6 +42,23 @@ class PyGameBtn(Enum):
     RIGHTTHUMB = 9
     XBOX = 10
     SHARE = 11
+    DPAD = 17
+
+
+def main():
+    pygame.init()
+    pygame.joystick.init()
+
+    while True:
+        if activeController is not None:
+            getControllerInput()
+            ignoreInputsSmallerThan(0.01)
+            normalizeTriggerValues()
+            setWheelSpeedsBasedOnControllerInput()
+            sendCommandToWheels()
+        else:
+            updateJoysticks()
+        pygame.time.wait(100)
 
 
 def printConnectedControllers():
@@ -54,7 +71,7 @@ def printConnectedControllers():
 
 
 def ignoreInputsSmallerThan(magnitude):
-    global rightTrigger, leftTrigger
+    global leftStickMotion, rightStickMotion, rightTrigger, leftTrigger
 
     for i in range(len(leftStickMotion)):
         if abs(leftStickMotion[i]) < magnitude:
@@ -129,11 +146,8 @@ def normalizeTriggerValues():
 
 
 def updateJoysticks():
-    global controllers
-    global activeController
-    controllers = [
-        pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())
-    ]
+    global controllers, activeController
+    controllers = [pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())]
     if len(controllers) > 0:
         activeController = controllers[0]
     else:
@@ -167,7 +181,7 @@ def getPygameEventInputs():
 
 
 def getAnalogInputs():
-    global leftTrigger, rightTrigger
+    global leftStickMotion, rightStickMotion, leftTrigger, rightTrigger
     leftStickMotion[0] = activeController.get_axis(0)
     leftStickMotion[1] = activeController.get_axis(1)
 
@@ -178,9 +192,24 @@ def getAnalogInputs():
     rightTrigger = activeController.get_axis(5)
 
 
+def getDpadInput():
+    global driveStrength, turnStrength
+
+    dpadX, dpadY = activeController.get_hat(0)
+    if dpadY == 1:
+        driveStrength += driveStrengthIncrement
+    elif dpadY == -1:
+        driveStrength -= driveStrengthIncrement
+    if dpadX == 1:
+        turnStrength += turnStrengthIncrement
+    elif dpadX == -1:
+        turnStrength -= turnStrengthIncrement
+
+
 def getControllerInput():
     getPygameEventInputs()
     getAnalogInputs()
+    getDpadInput()
 
 
 def setWheelSpeedsBasedOnControllerInput():
@@ -208,6 +237,7 @@ def setWheelSpeedsBasedOnControllerInput():
 
 def sendCommandToWheels():
     print("sending " + str(leftSpeed) + ", " + str(rightSpeed) + "...")
+
     try:
         requests.get(
             url="http://192.168.0.12:8080/wheel_command_both",
@@ -222,13 +252,4 @@ def sendCommandToWheels():
 
 
 if __name__ == "__main__":
-    while True:
-        if activeController is not None:
-            getControllerInput()
-            ignoreInputsSmallerThan(0.01)
-            normalizeTriggerValues()
-            setWheelSpeedsBasedOnControllerInput()
-            sendCommandToWheels()
-        else:
-            updateJoysticks()
-        pygame.time.wait(250)
+    main()
