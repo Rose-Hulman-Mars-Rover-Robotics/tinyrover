@@ -2,3 +2,4 @@
 .DS_Store
 tinyrover.code-workspace
 settings.json
+imu_cal.json
