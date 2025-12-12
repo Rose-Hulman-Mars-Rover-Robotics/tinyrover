@@ -10,9 +10,14 @@ activeController = None
 
 # TODO: change values to adjust how controls feel after more field testing
 driveStrength = 30
+maxDriveStrength = 90
 driveStrengthIncrement = 5
 turnStrength = 20
+maxTurnStrength = 60
 turnStrengthIncrement = 3
+
+adjustDriveStrength = 0
+adjustTurnStrength = 0
 
 leftStickMotion = [0.0, 0.0]
 rightStickMotion = [0.0, 0.0]
@@ -193,17 +198,31 @@ def getAnalogInputs():
 
 
 def getDpadInput():
-    global driveStrength, turnStrength
+    global driveStrength, turnStrength, adjustDriveStrength, adjustTurnStrength
 
     dpadX, dpadY = activeController.get_hat(0)
-    if dpadY == 1:
-        driveStrength += driveStrengthIncrement
-    elif dpadY == -1:
-        driveStrength -= driveStrengthIncrement
-    if dpadX == 1:
-        turnStrength += turnStrengthIncrement
-    elif dpadX == -1:
-        turnStrength -= turnStrengthIncrement
+    prevAdjustDriveStrength = adjustDriveStrength
+    prevAdjustTurnStrength = adjustTurnStrength
+    adjustDriveStrength = dpadY
+    adjustTurnStrength = dpadX
+
+    if prevAdjustDriveStrength == 0 and adjustDriveStrength == 1:
+        newDriveStrength = driveStrength + driveStrengthIncrement
+        if newDriveStrength < maxDriveStrength:
+            driveStrength = newDriveStrength
+    elif prevAdjustDriveStrength == 0 and adjustDriveStrength == -1:
+        newDriveStrength = driveStrength - driveStrengthIncrement
+        if newDriveStrength > 0:
+            driveStrength = newDriveStrength
+
+    if prevAdjustTurnStrength == 0 and adjustTurnStrength == 1:
+        newTurnStrength = turnStrength + turnStrengthIncrement
+        if newTurnStrength < maxTurnStrength:
+            turnStrength = newTurnStrength
+    elif prevAdjustTurnStrength == 0 and adjustTurnStrength == -1:
+        newTurnStrength = turnStrength - turnStrengthIncrement
+        if newTurnStrength > 0:
+            turnStrength = newTurnStrength
 
 
 def getControllerInput():
@@ -231,8 +250,8 @@ def setWheelSpeedsBasedOnControllerInput():
         if leftStickMotion[0] < 0:
             leftSpeed += 1
 
-    leftSpeed = int(leftSpeed)
-    rightSpeed = int(rightSpeed)
+    leftSpeed = min(max(int(leftSpeed), 0), 180)
+    rightSpeed = min(max(int(rightSpeed), 0), 180)
 
 
 def sendCommandToWheels():
