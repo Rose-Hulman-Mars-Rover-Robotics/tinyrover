@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 
+const StdHeaders = {"Accept":"application/json","Content-Type":"application/json"};
+
 const Endpoints = { LOCAL: "localhost", REMOTE: "192.168.0.12" };
 
 let endpoint;
@@ -32,10 +34,7 @@ function sendCurrentWheelControl() {
     if (sendingRegularCommands) {
         fetch(`http://${endpoint}:8080/${route}`, {
             method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
+            headers: StdHeaders,
             body: JSON.stringify(body)
         });
         if (route == "wheel_command_stop") {
@@ -48,10 +47,7 @@ function sendSmartCommand(route, body) {
     sendingRegularCommands = false;
     fetch(`http://${endpoint}:8081/${route}`, {
         method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
+        headers: StdHeaders,
         body: JSON.stringify(body)
     });
 }
@@ -144,50 +140,20 @@ $("#trim_input").onchange = (event) => {
 }
 
 function fetchLoop() {
-    fetch(`/data`, {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ "k": "gps" })
-    }).then((response) => {
-        return response.json();
-    }).then((data) => {
-        $("#gps").innerHTML = "GPS: " + data["v"];
-    })
-
-    fetch(`/data`, {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ "k": "quat" })
-    }).then((response) => {
-        return response.json();
-    }).then((data) => {
-        $("#quat").innerHTML = "Quaternion: " + data["v"];
-    })
-
-    fetch(`/data`, {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ "k": "scuffed_yaw" })
-    }).then((response) => {
-        return response.json();
-    }).then((data) => {
-        if (data["v"] == "no value") {
+    const dataFetch = async (obj) => {
+        return await (await fetch("/data", {method:"POST",headers:StdHeaders,body:JSON.stringify(obj)})).json();
+    };
+    dataFetch({"k":"gps"}).then(data => $("#gps").innerHTML = `GPS: ${data["v"]}`);
+    dataFetch({"k":"quat"}).then(data => $("#quat").innerHTML = `Quaternion: ${data["v"]}`);
+    dataFetch({"k":"scuffed_yaw"}).then(data => {
+        if (data["v"] === "no value") {
             $("#yaw").innerHTML = "Yaw: no value";
         } else {
             yaw = ((data["v"] / Math.PI) * 180) + 180;
-            $("#yaw").innerHTML = "Yaw: " + yaw;
-            $('#nyomi').style.transform = "rotate(" + yaw + "deg)";
+            $("#yaw").innerHTML = `Yaw: ${yaw}`;
+            $("#nyomi").style.setProperty("transform", `rotate(${yaw} deg)`);
         }
-    })
+    });
 }
 
 let quaternion = new THREE.Quaternion(1, 0, 0, 0);
