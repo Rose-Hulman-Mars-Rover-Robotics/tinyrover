@@ -1,19 +1,16 @@
 from flask import Flask, request
 import numpy as np
 import math
-import requests
 import time
 from flask import send_from_directory
 from flask_cors import CORS, cross_origin
-from kv_api import default_value
+from kv_api import local, server, port
 
 app = Flask(__name__)
 state = {}
 cors = CORS(app)
 app.config["CORS_HEADERS"] = "Content-Type"
-
-# TODO: set local, server, and port to be variables here
-
+default_value = {"v": "no value"}
 
 @app.route("/data", methods=["GET", "POST", "PUT"])
 @cross_origin()
@@ -26,7 +23,6 @@ def data():
         return "ok", 200
     else:
         k = data["k"]
-        # v = state[k]
         if k in state:
             v = state[k]
             return {"v": v}, 200
@@ -35,7 +31,7 @@ def data():
 
 
 rate = 0.2
-v = [1, 0, 0, 0]
+v = [1.0, 0.0, 0.0, 0.0]
 
 
 @app.route("/brown", methods=["GET", "PUT", "POST"])
@@ -89,5 +85,5 @@ def everything():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True, threaded=False)
-    print("local running on http://127.0.0.1:5001/")
-    print("server running on http://192.168.0.12:5001/")
+    print(f"local running on http://{local}:{port}/")
+    print(f"server running on http://{server}:{port}/")

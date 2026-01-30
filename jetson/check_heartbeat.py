@@ -1,5 +1,6 @@
 import time
-from kv_api import grab_kv, default_value
+from kv_api import grab_kv
+from kv import default_value
 import requests
 
 allowed_flatline_time_ms = 4500
@@ -27,20 +28,19 @@ while 1:
         print("heard new heartbeat: " + str(most_recent_beat))
         updated_this_cycle = True
 
-    most_recent_check = most_recent_heard + current_time
+    if most_recent_heard is not None:
+        most_recent_check = most_recent_heard + current_time
 
     # used for debugging
-    if not updated_this_cycle:
-        timediff = int(
-            allowed_flatline_time_ms - (most_recent_check - most_recent_beat)
-        )
+    if not updated_this_cycle and most_recent_check is not None:
+        timediff = int(allowed_flatline_time_ms - (most_recent_check - most_recent_beat))
         print(
             "checked for heartbeat but didn't hear it. will stop wheels if don't hear another beat in ~"
             + str(timediff)
             + " ms"
         )
 
-    if (most_recent_check - most_recent_beat) > allowed_flatline_time_ms:
+    if most_recent_check is not None and (most_recent_check - most_recent_beat) > allowed_flatline_time_ms:
         if wheel_stop_sent:
             time.sleep(time_between_listens_ms / 1000)
         else:
