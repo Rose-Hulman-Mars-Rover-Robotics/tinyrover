@@ -1,14 +1,13 @@
-clifford
-flask
-matplotlib
-numpy
-opencv-python
-pygame
-# pyrealsense2
-pyserial
-requests
-simple-pid
+clifford==1.4.0
+flask==3.0.3
+matplotlib==3.9.2
+numpy==2.0.2
+opencv-python==4.11.0.86
+pygame==2.6.0
+pyserial==3.5
+requests==2.32.3
+simple-pid==2.0.1
 opencv-contrib-python==4.6.0.66
-Flask-Cors
-scipy
-networkx
+Flask-Cors==5.0.0
+scipy==1.14.1
+networkx==3.5
