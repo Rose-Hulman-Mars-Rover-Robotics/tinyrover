@@ -1,0 +1,55 @@
+arm serial communication protocol
+
+<0x99 0xYY> control scheme id
+control schemes are composed of bitfields that specify whether each control is setting a target position or velocity
+a zero specifies control of a target, a one specifies control of a velocity
+0b0abcdefg
+<a> - dc motor
+<b> - brushless 1
+<c> - brushless 2
+<d> - wrist 1
+<e> - wrist 2
+<f> - wrist 3
+<g> - claw
+default: 0b01111111
+
+<0x55 0xYY> command id
+0x55 used as start of sequence
+0xYY used to identify the command
+
+commands:
+0x00 - stop everything
+0x01 - DC Motor
+0x02 - Brushless 1
+0x03 - Brushless 2
+0x04 - Wrist 1
+0x05 - Wrist 2
+0x06 - Wrist 3 (Claw rotation)
+0x07 - Claw open/close
+0x08 - Report Status
+
+parameters:
+DC MOTOR:
+<int8> 0 for stop, 1 for right, 2 for left in velocity mode
+<int16> in position mode (not supported yet)
+BRUSHLESS 1:
+<int8> in velocity mode
+<int16> in position mode (not supported yet)
+BRUSHLESS 2:
+<int8> in velocity mode
+<int16> in position mode (not supported yet)
+WRIST 1:
+<int8> in velocity mode
+<int16> in position mode
+WRIST 2:
+<int8> in velocity mode
+<int16> in position mode
+WRIST 3:
+<int8> in velocity mode
+<int16> in position mode
+CLAW:
+<int8> in both modes
+
+effects:
+DC MOTOR:
+motor begins spinning in specified direction
