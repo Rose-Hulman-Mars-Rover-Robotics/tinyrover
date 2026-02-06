@@ -1,11 +1,10 @@
 from enum import Enum
 import pygame
-from pygame.locals import *
 import requests
 import sys
 
 
-controllers = None
+controllers = []
 activeController = None
 
 # TODO: change values to adjust how controls feel after more field testing
@@ -186,46 +185,50 @@ def getPygameEventInputs():
 
 
 def getAnalogInputs():
-    global leftStickMotion, rightStickMotion, leftTrigger, rightTrigger
-    leftStickMotion[0] = activeController.get_axis(0)
-    leftStickMotion[1] = activeController.get_axis(1)
+    if activeController is not None:
+        global leftStickMotion, rightStickMotion, leftTrigger, rightTrigger
+        leftStickMotion[0] = activeController.get_axis(0)
+        leftStickMotion[1] = activeController.get_axis(1)
 
-    rightStickMotion[0] = activeController.get_axis(2)
-    rightStickMotion[1] = activeController.get_axis(3)
+        rightStickMotion[0] = activeController.get_axis(2)
+        rightStickMotion[1] = activeController.get_axis(3)
 
-    leftTrigger = activeController.get_axis(4)
-    rightTrigger = activeController.get_axis(5)
+        leftTrigger = activeController.get_axis(4)
+        rightTrigger = activeController.get_axis(5)
 
 
 def getDpadInput():
-    global driveStrength, turnStrength, adjustDriveStrength, adjustTurnStrength
+    if activeController is not None:
+        global driveStrength, turnStrength, adjustDriveStrength, adjustTurnStrength
 
-    dpadX, dpadY = activeController.get_hat(0)
-    prevAdjustDriveStrength = adjustDriveStrength
-    prevAdjustTurnStrength = adjustTurnStrength
-    adjustDriveStrength = dpadY
-    adjustTurnStrength = dpadX
+        dpadX, dpadY = activeController.get_hat(0)
+        prevAdjustDriveStrength = adjustDriveStrength
+        prevAdjustTurnStrength = adjustTurnStrength
+        adjustDriveStrength = dpadY
+        adjustTurnStrength = dpadX
 
-    if prevAdjustDriveStrength == 0 and adjustDriveStrength == 1:
-        newDriveStrength = driveStrength + driveStrengthIncrement
-        if newDriveStrength < maxDriveStrength:
-            driveStrength = newDriveStrength
-    elif prevAdjustDriveStrength == 0 and adjustDriveStrength == -1:
-        newDriveStrength = driveStrength - driveStrengthIncrement
-        if newDriveStrength > 0:
-            driveStrength = newDriveStrength
+        if prevAdjustDriveStrength == 0 and adjustDriveStrength == 1:
+            newDriveStrength = driveStrength + driveStrengthIncrement
+            if newDriveStrength < maxDriveStrength:
+                driveStrength = newDriveStrength
+        elif prevAdjustDriveStrength == 0 and adjustDriveStrength == -1:
+            newDriveStrength = driveStrength - driveStrengthIncrement
+            if newDriveStrength > 0:
+                driveStrength = newDriveStrength
 
-    if prevAdjustTurnStrength == 0 and adjustTurnStrength == 1:
-        newTurnStrength = turnStrength + turnStrengthIncrement
-        if newTurnStrength < maxTurnStrength:
-            turnStrength = newTurnStrength
-    elif prevAdjustTurnStrength == 0 and adjustTurnStrength == -1:
-        newTurnStrength = turnStrength - turnStrengthIncrement
-        if newTurnStrength > 0:
-            turnStrength = newTurnStrength
+        if prevAdjustTurnStrength == 0 and adjustTurnStrength == 1:
+            newTurnStrength = turnStrength + turnStrengthIncrement
+            if newTurnStrength < maxTurnStrength:
+                turnStrength = newTurnStrength
+        elif prevAdjustTurnStrength == 0 and adjustTurnStrength == -1:
+            newTurnStrength = turnStrength - turnStrengthIncrement
+            if newTurnStrength > 0:
+                turnStrength = newTurnStrength
 
 
 def getControllerInput():
+    if activeController is None:
+        return
     getPygameEventInputs()
     getAnalogInputs()
     getDpadInput()
