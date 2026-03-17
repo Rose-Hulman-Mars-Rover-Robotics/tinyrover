@@ -2,7 +2,7 @@ import time
 from flask import Flask, request
 import argparse
 import requests
-from math import sqrt, atan2, exp
+from math import sqrt, atan2
 from simple_pid import PID
 
 parser = argparse.ArgumentParser()
@@ -168,7 +168,8 @@ def wheel_direct_both():
         r = requests.get("http://127.0.0.1:5001/data", timeout=3, json={"k": "gps"})
         location = r.json()["v"]
         distance = sqrt((target[0] - location[0]) ** 2 + (target[1] - location[1]) ** 2)
-        angle = atan2(target[0] - location[0], target[1] - location[1]) #Add something depending on which way north is on the IMU
+        # TODO: Add something depending on which way north is on the IMU
+        angle = atan2(target[0] - location[0], target[1] - location[1])
         r = requests.get(
             "http://192.168.0.12:8081/turn", json={"target": angle}
         )
@@ -194,7 +195,6 @@ def wheel_path_both():
             "http://192.168.0.12:8081/directpath",
             json={"lat": pos[0], "long": pos[1]},
         )
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8081, debug=True, threaded=False, use_reloader=False)
